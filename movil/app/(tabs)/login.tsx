@@ -37,7 +37,7 @@ export default function LoginScreen() {
       const userCredential = await registerUser(email, password, role, name);
       if (userCredential) {
         console.log("Usuario registrado: " + userCredential.user.email);
-        navigation.replace('explore');
+        navigation.navigate('index');
       }
     } else {
       // Logica Login por hacer
@@ -45,7 +45,7 @@ export default function LoginScreen() {
         const userCredential = await loginUser(email,password);
         if(userCredential){
           console.log("Usuario inicio sesion con exito");
-          navigation.replace('explore');
+          navigation.navigate('index');
         }
       }
     }
@@ -160,7 +160,7 @@ export default function LoginScreen() {
       {/* BUTTON */}
       <TouchableOpacity style={styles.button} onPress={handlePress} >
         <Text style={styles.buttonText}>
-          {tab === 'register' ? 'Verificar correo electrónico' : 'Entrar'}
+          {tab === 'register' ? 'Registrarse' : 'Entrar'}
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
