@@ -34,7 +34,7 @@ export default function LoginScreen() {
 
   const handlePress = async () => {
     if (tab == 'register') {
-      const userCredential = await registerUser(email, password, role, name);
+      const userCredential = await registerUser(email, password, name, role);
       if (userCredential) {
         console.log("Usuario registrado: " + userCredential.user.email);
         navigation.navigate('index');

@@ -26,7 +26,7 @@ export const registerUser = async(email: string, password:string,name: string, r
             email,
             name,
             role,
-            emailVerified: role
+            emailVerified: false
         });
 
         console.log("Usuario registrado exitosamente");
