@@ -9,8 +9,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Linking,
+
 } from 'react-native';
-import Checkbox from 'expo-checkbox';
+import { Picker } from '@react-native-picker/picker';
+import { loginUser, registerUser } from '@/hooks/useAuth';
+import { useNavigation } from "@react-navigation/native";
 
 // Colores base
 const COLORS = {
@@ -23,8 +26,31 @@ const COLORS = {
 
 export default function LoginScreen() {
   const [tab, setTab] = useState<'register' | 'login'>('register');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [isTeacher, setIsTeacher] = useState(false);
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const navigation = useNavigation<any>();
+
+  const handlePress = async () => {
+    if (tab == 'register') {
+      const userCredential = await registerUser(email, password, role, name);
+      if (userCredential) {
+        console.log("Usuario registrado: " + userCredential.user.email);
+        navigation.replace('explore');
+      }
+    } else {
+      // Logica Login por hacer
+      if(tab == 'login'){
+        const userCredential = await loginUser(email,password);
+        if(userCredential){
+          console.log("Usuario inicio sesion con exito");
+          navigation.replace('explore');
+        }
+      }
+    }
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,7 +64,8 @@ export default function LoginScreen() {
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tab, tab === 'register' && styles.tabActive]}
-          onPress={() => setTab('register')}
+          onPress={() =>
+            setTab('register')}
         >
           <Text style={[styles.tabText, tab === 'register' && styles.tabTextActive]}>Registrarse</Text>
         </TouchableOpacity>
@@ -50,28 +77,69 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* INPUT */}
-      <TextInput
-        style={styles.input}
-        placeholder="Dirección de correo electrónico"
-        placeholderTextColor={COLORS.lightGray}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      {/* CHECKBOX */}
-      {tab === 'register' && (
-        <View style={styles.checkboxRow}>
-          <Checkbox
-            value={isTeacher}
-            onValueChange={setIsTeacher}
-            color={isTeacher ? COLORS.accent : undefined}
+      {/* Login */}
+      {tab == 'login' && (
+        <View>
+          <TextInput
+            style={styles.input}
+            placeholder="Dirección de correo electrónico"
+            placeholderTextColor={COLORS.lightGray}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
-          <Text style={styles.checkboxLabel}>
-            Registrarse como docente <Text style={styles.parentheses}>(Identificación requerida)</Text>
-          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            placeholderTextColor={COLORS.lightGray}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+
+        </View>
+      )}
+
+      {tab === 'register' && (
+        <View style={styles.dropdownContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre Completo"
+            placeholderTextColor={COLORS.lightGray}
+            keyboardType="default"
+            autoCapitalize="none"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Dirección de correo electrónico"
+            placeholderTextColor={COLORS.lightGray}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            placeholderTextColor={COLORS.lightGray}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Text style={styles.label}>Selecciona tu rol</Text>
+          <Picker
+            selectedValue={role}
+            onValueChange={(itemValue) => setRole(itemValue)}
+            style={styles.picker}
+            dropdownIconColor={COLORS.accent}
+          >
+            <Picker.Item label='Padre de Familia' value="tutor" />
+            <Picker.Item label='Profesor/a' value="docente" />
+            <Picker.Item label='Administrador' value="admin" />
+          </Picker>
         </View>
       )}
 
@@ -90,7 +158,7 @@ export default function LoginScreen() {
       </Text>
 
       {/* BUTTON */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={handlePress} >
         <Text style={styles.buttonText}>
           {tab === 'register' ? 'Verificar correo electrónico' : 'Entrar'}
         </Text>
@@ -148,15 +216,17 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     fontSize: 16,
   },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  label: {
+    color: COLORS.text,
+    marginBottom: 5,
+  },
+  dropdownContainer: {
     marginBottom: 25,
   },
-  checkboxLabel: {
+  picker: {
+    backgroundColor: COLORS.lightGray,
     color: COLORS.text,
-    marginLeft: 8,
-    fontSize: 14,
+    borderRadius: 5,
   },
   parentheses: {
     color: COLORS.lightGray,
